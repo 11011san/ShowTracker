@@ -16,12 +16,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -188,12 +185,7 @@ public class GetData {
             try {
 
                 Log.d("Show Tracker", "Starting Search");
-                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                factory.setNamespaceAware(true);
-                XmlPullParser parser = factory.newPullParser();
-                //InputStreamReader is = new InputStreamReader(getUrlData(yqlURL));
-                InputStreamReader is = new InputStreamReader(downloadUrl(yqlURL));
-                parser.setInput(is);
+                XmlPullParser parser = getParser(yqlURL);
                 int eventType = parser.getEventType();
                 ShowInfo entery = null;
                 SearchTag tag = null;
@@ -317,6 +309,8 @@ public class GetData {
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
             }
 
             return list;
@@ -428,62 +422,19 @@ public class GetData {
 
     }
 
-    private static InputStream downloadUrl(String myurl) throws IOException {
-        InputStream is = null;
-        // Only display the first 500 characters of the retrieved
-        // web page content.
-        int len = 500;
+    private static XmlPullParser getParser(String url) throws URISyntaxException, ClientProtocolException, IOException, XmlPullParserException {
+        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        XmlPullParser parser = factory.newPullParser();
 
-        try {
-            URL url = new URL(myurl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-            conn.setRequestMethod("GET");
-            conn.setDoInput(true);
-            // Starts the query
-            conn.connect();
-            int response = conn.getResponseCode();
-            Log.d("Show Tracker", "The response is: " + response);
-            return  conn.getInputStream();
-
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
-        } finally {
-            if (is != null) {
-                is.close();
-            }
-        }
-    }
-
-    private static InputStream getUrlData(String url) throws URISyntaxException, ClientProtocolException, IOException {
         DefaultHttpClient client = new DefaultHttpClient();
         HttpGet method = new HttpGet(new URI(url));
 
         HttpResponse res = client.execute(method);
-        return res.getEntity().getContent();
+        InputStreamReader is = new InputStreamReader(res.getEntity().getContent());
+        parser.setInput(is);
+        return parser;
     }
-
-    private static final void beginDocument(XmlPullParser parser, String firstElementName) throws XmlPullParserException, IOException{
-        int type;
-        while((type=parser.next()) != parser.START_TAG && type != parser.END_DOCUMENT){
-            ;
-        }
-        if(type != parser.START_TAG) {
-            throw new XmlPullParserException("No Start Tag Found");
-        }
-        if(!parser.getName().equals(firstElementName)){
-            throw new XmlPullParserException("UnExpected Start Tag Found " + parser.getName() + ", expexted " + firstElementName);
-        }
-    }
-
-    private static final void nextElement(XmlPullParser parser) throws XmlPullParserException, IOException {
-        int type;
-        while((type = parser.next()) != parser.START_TAG && type != parser.END_DOCUMENT ){
-            ;
-        }
-    }
-
 
 
 }
