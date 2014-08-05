@@ -77,8 +77,10 @@ public class MainActivity extends Activity {
         }else if(id == R.id.action_add_show){
             Intent theIntent = new Intent(getApplication(), SearchActivity.class);
             startActivityForResult(theIntent, 0);
-
             return true;
+        }else if(id == R.id.action_week_view){
+            Intent theIntent = new Intent(getApplication(), EpisodeWeekActivity.class);
+            startActivityForResult(theIntent, 0);
         }
         return super.onOptionsItemSelected(item);
     }

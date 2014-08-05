@@ -89,11 +89,14 @@ public class SearchActivity extends Activity {
                     ShowInfo showInfo = getShow(showId);
                     DBTools db = new DBTools(view.getContext());
                     if (showInfo != null) {
-                        if (db.haveShowID(Integer.toString(showInfo.getId())))
+                        if (db.haveShowID(Integer.toString(showInfo.getId()))) {
                             db.updateShow(showInfo);
-                        else
+                            Toast.makeText(getApplicationContext(), getString(R.string.search_entery_exixts) + " : " + showInfo.getTitle(), Toast.LENGTH_LONG).show();
+                        }else {
                             db.insertShow(showInfo);
-                        Toast.makeText(getApplicationContext(), getString(R.string.search_entery_added) + " " + showInfo.getTitle(), Toast.LENGTH_LONG).show();
+                            (new GetData.GetEpisodeInfo(SearchActivity.this,null)).execute(Integer.toString(showInfo.getId()));
+                            Toast.makeText(getApplicationContext(), getString(R.string.search_entery_added) + " " + showInfo.getTitle(), Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
             });

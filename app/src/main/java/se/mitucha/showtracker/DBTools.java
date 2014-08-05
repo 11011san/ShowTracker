@@ -5,11 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 
 public class DBTools extends SQLiteOpenHelper {
 
@@ -30,28 +32,45 @@ public class DBTools extends SQLiteOpenHelper {
     private final static String ENDED = "ended";
     private final static String GENRE = "genre";
     private final static String NAME = "name";
+    private final static String EP_NUM = "ep_num";
+    private final static String SEASON_NUM = "season_num";
+    private final static String PROD_NUM = "prod_num";
+    private final static String AIR_DATE = "air_date";
+    private final static String TITLE = "title";
+    private final static String SEASON = "season";
+    private final static String SEEN = "seen";
     private final static String SHOW_TABLE = "shows";
     private final static String GENRE_TABLE = "genre";
     private final static String AKA_TABLE = "aka";
+    private final static String EPISODE_TABLE = "episode";
     private final static String QUERY_CREATE_SHOW = "CREATE TABLE shows ( id_show INTEGER PRIMARY KEY, show_name TEXT NOT NULL, started INTEGER, startdate INTEGER, status TEXT, classification TEXT, runtime INTEGER, network TEXT, link TEXT, country TEXT, seasons INTEGER, network_country TEXT, air_time TEXT, air_day TEXT, ended INTEGER)";
     private final static String QUERY_CREATE_GENRE = "CREATE TABLE genre ( id_show INTEGER, genre TEXT, FOREIGN KEY(id_show) REFERENCES shows(id_show), PRIMARY KEY (id_show, genre))";
     private final static String QUERY_CREATE_AKA = "CREATE TABLE aka ( id_show INTEGER, country TEXT, name TEXT,  FOREIGN KEY(id_show) REFERENCES shows(id_show), PRIMARY KEY (id_show, country))";
+    private final static String QUERY_CREATE_EPISODE = "CREATE TABLE episode ( id_show INTEGER, ep_num INTEGER, season_num INTEGER, prod_num TEXT, air_date INTEGER, link TEXT, title TEXT, season INTEGER, seen NUMERIC, FOREIGN KEY(id_show) REFERENCES shows(id_show), PRIMARY KEY (id_show, ep_num))";
     private final static String QUERY_DROP_SHOW = "DROP TABLE IF EXISTS shows";
     private final static String QUERY_DROP_GENRE = "DROP TABLE IF EXISTS genre";
     private final static String QUERY_DROP_AKA = "DROP TABLE IF EXISTS aka";
+    private final static String QUERY_DROP_EPISODE = "DROP TABLE IF EXISTS episode";
     private final static String QUERY_DELETE_SHOW_BY_ID = "DELETE FROM shows WHERE id_show =\'%1$s\'";
     private final static String QUERY_DELETE_GENRE_BY_ID = "DELETE FROM genre WHERE id_show =\'%1$s\'";
     private final static String QUERY_DELETE_AKA_BY_ID = "DELETE FROM aka WHERE id_show =\'%1$s\'";
+    private final static String QUERY_DELETE_EPISODE_BY_ID = "DELETE FROM episode WHERE id_show =\'%1$s\'";
     private final static String QUERY_ALL_SHOW = "SELECT * FROM shows ORDER BY id_show";
     private final static String QUERY_ALL_AKA = "SELECT * FROM aka ORDER BY id_show";
     private final static String QUERY_ALL_GENRE = "SELECT * FROM genre ORDER BY id_show";
+    private final static String QUERY_ALL_EPISODE = "SELECT * FROM episode ORDER BY id_show";
+    private final static String QUERY_ALL_EPISODE_BY_ID = "SELECT * FROM episode WHERE id_show=\'%1$s\' ORDER BY ep_num";
+    private final static String QUERY_ALL_EPISODE_BY_DATE_RANGE = "SELECT * FROM episode WHERE air_date BETWEEN %1$s AND  %2$s  ORDER BY ep_num";
     private final static String QUERY_GET_SHOW_BY_ID = "SELECT * FROM shows WHERE id_show=\'%1$s\'";
     private final static String QUERY_GET_AKA_BY_PRIM = "SELECT * FROM aka WHERE id_show=\'%1$s\' AND country='%2$s'";
     private final static String QUERY_GET_GENRE_BY_PRIM = "SELECT * FROM genre WHERE id_show=\'%1$s\' AND genre='%2$s'";
+    private final static String QUERY_GET_EPISODE_BY_PRIM = "SELECT * FROM episode WHERE id_show=\'%1$s\' AND ep_num='%2$s'";
+    private final static String QUERY_GET_AKA_BY_ID = "SELECT * FROM aka WHERE id_show=\'%1$s\'";
+    private final static String QUERY_GET_GENRE_BY_ID = "SELECT * FROM genre WHERE id_show=\'%1$s\'";
 
     public DBTools(Context applicationContext) {
 
-        super(applicationContext, "show.db", null, 1);
+        super(applicationContext, "show.db", null, 2);
 
 
     }
@@ -62,12 +81,14 @@ public class DBTools extends SQLiteOpenHelper {
         db.execSQL(QUERY_CREATE_SHOW);
         db.execSQL(QUERY_CREATE_AKA);
         db.execSQL(QUERY_CREATE_GENRE);
+        db.execSQL(QUERY_CREATE_EPISODE);
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+        db.execSQL(QUERY_DROP_EPISODE);
         db.execSQL(QUERY_DROP_GENRE);
         db.execSQL(QUERY_DROP_AKA);
         db.execSQL(QUERY_DROP_SHOW);
@@ -78,13 +99,16 @@ public class DBTools extends SQLiteOpenHelper {
 
     public boolean haveShowID(String id){
 
-
         SQLiteDatabase db = this.getReadableDatabase();
+        boolean result = haveShowID(id, db);
+        db.close();
+        return result;
+    }
+
+    private boolean haveShowID(String id, SQLiteDatabase db ){
 
         String selectQuery = String.format(QUERY_GET_SHOW_BY_ID, id);
-
         Cursor cursor = db.rawQuery(selectQuery, null);
-
         return cursor.getCount() == 1;
     }
 
@@ -92,19 +116,57 @@ public class DBTools extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = mackContentValuesShow(show);
-        db.insert(SHOW_TABLE, null, values);
-        ArrayList<ContentValues> list = mackContentValuesAka(show);
-        for(ContentValues item : list)
+        db.insert(SHOW_TABLE, null, makeContentValuesFromShow(show));
+        for(ContentValues item : makeContentValuesFromAka(show))
             db.insert(AKA_TABLE, null, item);
-        list = mackContentValuesGenres(show);
-        for(ContentValues item : list)
+        for(ContentValues item : makeContentValuesFromGenres(show))
             db.insert(GENRE_TABLE, null, item);
         db.close();
 
     }
 
-    private ContentValues mackContentValuesShow(ShowInfo show) {
+    public void insertEpisode(EpisodeInfo ep){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.insert(EPISODE_TABLE,null,makeContentValuesFromEpisode(ep,true));
+        db.close();
+
+    }
+
+    public void insertEpisode(List<EpisodeInfo> eps){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        for (EpisodeInfo ep : eps)
+            db.insert(EPISODE_TABLE,null,makeContentValuesFromEpisode(ep,true));
+        db.close();
+
+    }
+
+    private ContentValues makeContentValuesFromEpisode(EpisodeInfo ep, boolean updateSeen) {
+
+        ContentValues values = new ContentValues();
+
+        values.put(ID_SHOW, ep.getShowId());
+        values.put(EP_NUM, ep.getEpNum());
+        values.put(SEASON_NUM, ep.getSeasonNum());
+        values.put(PROD_NUM, ep.getProdNum());
+        values.put(AIR_DATE, (ep.getAirDate() != null)? ep.getAirDate().getTimeInMillis():-1);
+        values.put(LINK, ep.getLink());
+        values.put(TITLE, ep.getTitle());
+        values.put(SEASON, ep.getSeason());
+        if(updateSeen)
+            values.put(SEEN, ep.isSeen());
+        return values;
+    }
+
+    private List<ContentValues> makeContentValuesFromEpisode(List<EpisodeInfo> eps, boolean updateSeen) {
+        List<ContentValues> list = new ArrayList<ContentValues>(eps.size());
+        for(EpisodeInfo ep : eps)
+            list.add(makeContentValuesFromEpisode(ep, updateSeen));
+        return list;
+    }
+
+    private ContentValues makeContentValuesFromShow(ShowInfo show) {
 
         ContentValues values = new ContentValues();
 
@@ -127,7 +189,7 @@ public class DBTools extends SQLiteOpenHelper {
         return values;
     }
 
-    private ArrayList<ContentValues> mackContentValuesGenres(ShowInfo show) {
+    private ArrayList<ContentValues> makeContentValuesFromGenres(ShowInfo show) {
 
         ArrayList<ContentValues> list = new ArrayList<ContentValues>(show.getGenres().size());
 
@@ -139,7 +201,7 @@ public class DBTools extends SQLiteOpenHelper {
         }
         return list;
     }
-    private ArrayList<ContentValues> mackContentValuesAka(ShowInfo show) {
+    private ArrayList<ContentValues> makeContentValuesFromAka(ShowInfo show) {
 
         ArrayList<ContentValues> list = new ArrayList<ContentValues>(show.getGenres().size());
 
@@ -158,56 +220,106 @@ public class DBTools extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         String id = Integer.toString(show.getId());
-        int count = db.update(SHOW_TABLE, mackContentValuesShow(show), ID_SHOW + " = ?",new String[] { id });
-
-        ArrayList<ContentValues> list = mackContentValuesAka(show);
-        for(ContentValues item : list)
-            if( haveAka(id,(String)item.get(COUNTRY)))
+        int count = db.update(SHOW_TABLE, makeContentValuesFromShow(show), ID_SHOW + " = ?", new String[]{id});
+        for(ContentValues item : makeContentValuesFromAka(show))
+            if( haveAka(id,(String)item.get(COUNTRY),db))
                 count += db.update(AKA_TABLE, item , ID_SHOW + " = ? AND " + COUNTRY + " = ?",new String[] {id,(String)item.get(COUNTRY) });
             else
                 count += db.insert(AKA_TABLE,null,item);
-
-        list = mackContentValuesGenres(show);
-        for(ContentValues item : list)
-            if( !haveGenre(id,(String)item.get(GENRE)))
-                 count += db.insert(GENRE_TABLE,null,item);
+        for(ContentValues item : makeContentValuesFromGenres(show))
+            if( !haveGenre(id,(String)item.get(GENRE),db))
+                count += db.insert(GENRE_TABLE,null,item);
 //TODO check for removed genre and aka
-
+        db.close();
         return count;
+    }
+
+    public int updateEpisode(EpisodeInfo ep, boolean updateSeen){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String id = Integer.toString(ep.getShowId());
+        String epNum = Integer.toString(ep.getEpNum());
+        int count = 0;
+        if(! haveEpisode(id,epNum,db)){
+            db.insert(EPISODE_TABLE,null,makeContentValuesFromEpisode(ep,true));
+            count++;
+        }else {
+            count += db.update(EPISODE_TABLE, makeContentValuesFromEpisode(ep, updateSeen), ID_SHOW + " = ? AND " + EP_NUM + " = ?", new String[]{id, epNum});
         }
+        db.close();
+        return count;
+    }
+
+    public int updateEpisode(List<EpisodeInfo> eps,boolean updateSeen){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        int count = 0;
+        for( EpisodeInfo ep : eps ) {
+            String id = Integer.toString(ep.getShowId());
+            String epNum = Integer.toString(ep.getEpNum());
+            if (!haveEpisode(id, epNum,db)) {
+                db.insert(EPISODE_TABLE, null, makeContentValuesFromEpisode(ep, true));
+                count++;
+            } else {
+                count += db.update(EPISODE_TABLE, makeContentValuesFromEpisode(ep, updateSeen), ID_SHOW + " = ? AND " + PROD_NUM + " = ?", new String[]{id, epNum});
+            }
+        }
+        db.close();
+        return count;
+    }
+
 
     public boolean haveGenre(String id,String genre){
         SQLiteDatabase db = this.getReadableDatabase();
 
+        boolean result = haveGenre(id,genre,db);
+        db.close();
+        return result;
+    }
+
+    private boolean haveGenre(String id,String genre, SQLiteDatabase db){
+
         String selectQuery = String.format(QUERY_GET_GENRE_BY_PRIM, id, genre);
-// TODO android.database.sqlite.SQLiteException: no such column: genre (code 1): , while compiling: SELECT * FROM aka WHERE id_show='8511' AND genre='Comedy'
- //at android.database.sqlite.SQLiteConnection.nativePrepareStatement(Native Method);
         Cursor cursor = db.rawQuery(selectQuery, null);
-
         return cursor.getCount() == 1;
-
     }
 
     public boolean haveAka(String id, String country){
         SQLiteDatabase db = this.getReadableDatabase();
+        boolean result = haveAka(id,country,db);
+        db.close();
+        return result;
+    }
+
+    private boolean haveAka(String id, String country, SQLiteDatabase db){
 
         String selectQuery = String.format(QUERY_GET_AKA_BY_PRIM, id, country);
-
         Cursor cursor = db.rawQuery(selectQuery, null);
-
         return cursor.getCount() == 1;
     }
+
+    public boolean haveEpisode(String id, String epNum) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        boolean result = haveEpisode(id,epNum,db);
+        db.close();
+        return result;
+    }
+
+    private boolean haveEpisode(String id, String epNum, SQLiteDatabase db ) {
+
+        String selectQuery = String.format(QUERY_GET_EPISODE_BY_PRIM, id, epNum);
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        return cursor.getCount() == 1;
+    }
+
 
     public void deleteShow(String id) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-        String deleteQuery = String.format(QUERY_DELETE_GENRE_BY_ID, id);
-        db.execSQL(deleteQuery);
-        deleteQuery = String.format(QUERY_DELETE_AKA_BY_ID, id);
-        db.execSQL(deleteQuery);
-        deleteQuery = String.format(QUERY_DELETE_SHOW_BY_ID, id);
-        db.execSQL(deleteQuery);
-
+        db.execSQL(String.format(QUERY_DELETE_EPISODE_BY_ID, id));
+        db.execSQL(String.format(QUERY_DELETE_GENRE_BY_ID, id));
+        db.execSQL(String.format(QUERY_DELETE_AKA_BY_ID, id));
+        db.execSQL(String.format(QUERY_DELETE_SHOW_BY_ID, id));
+        db.close();
 
     }
 
@@ -248,12 +360,105 @@ public class DBTools extends SQLiteOpenHelper {
 
             } while (showCursor.moveToNext());
         }
-
+        db.close();
         return showArrayList;
 
     }
 
-    public ShowInfo makeShowFromCursor(Cursor cursor){
+    public List<EpisodeInfo> getAllEpisode(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(QUERY_GET_EPISODE_BY_PRIM, null);
+        ArrayList<EpisodeInfo> list = new ArrayList<EpisodeInfo>();
+        int count = cursor.getCount();
+        cursor.moveToFirst();
+        while (count > 0){
+
+            list.add(makeEpisodeFromCursor(cursor,db)) ;
+            count--;
+            cursor.moveToNext();
+
+        }
+        db.close();
+        return list;
+    }
+
+    public List<EpisodeInfo> getEpisodeInRange(Calendar start, Calendar end){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String startString = Long.toString(start.getTimeInMillis()-10);
+        String endString = Long.toString(end.getTimeInMillis()+10);
+        String query = String.format(QUERY_ALL_EPISODE_BY_DATE_RANGE,startString,endString);
+        Cursor cursor = db.rawQuery(query, null);
+        ArrayList<EpisodeInfo> list = new ArrayList<EpisodeInfo>();
+        int count = cursor.getCount();
+        Log.d("Show Tracker", " count = "+ count + ", query = "+query);
+        cursor.moveToFirst();
+        while (count > 0){
+
+            list.add(makeEpisodeFromCursor(cursor,db)) ;
+            count--;
+            cursor.moveToNext();
+
+        }
+        db.close();
+        return list;
+
+    }
+
+    public List<EpisodeInfo> getEpisodeOfShow(int id){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(String.format(QUERY_ALL_EPISODE_BY_ID,Integer.toString(id)), null);
+        ArrayList<EpisodeInfo> list = new ArrayList<EpisodeInfo>();
+        int count = cursor.getCount();
+        cursor.moveToFirst();
+        while (count < 0){
+
+            list.add(makeEpisodeFromCursor(cursor,db)) ;
+            count--;
+            cursor.moveToNext();
+
+        }
+        db.close();
+        return list;
+
+    }
+    public EpisodeInfo getEpisode(int showId , int epNum){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(String.format(QUERY_GET_EPISODE_BY_PRIM ,Integer.toString(showId),Integer.toString(epNum)), null);
+       cursor.moveToFirst();
+        EpisodeInfo episodeInfo = makeEpisodeFromCursor(cursor,db);
+        db.close();
+        return episodeInfo;
+
+    }
+
+    private EpisodeInfo makeEpisodeFromCursor( Cursor cursor, SQLiteDatabase db ){
+        EpisodeInfo ep = new EpisodeInfo();
+
+        ep.setShowId(cursor.getInt(0));
+        ep.setEpNum(cursor.getInt(1));
+        ep.setSeasonNum(cursor.getInt(2));
+        ep.setProdNum(cursor.getString(3));
+        if(cursor.getLong(4) == -1)
+            ep.setAirDate(null);
+        else {
+            Calendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(cursor.getLong(4));
+            ep.setAirDate(cal);
+        }
+        ep.setLink(cursor.getString(5));
+        ep.setTitle(cursor.getString(6));
+        ep.setSeason(cursor.getInt(7));
+        ep.setSeen(cursor.getInt(8)==1);
+        ep.setShow(getShow(cursor.getString(0),db));
+        return ep;
+    }
+
+    private ShowInfo makeShowFromCursor(Cursor cursor){
 
         ShowInfo show = new ShowInfo();
         show.setId(cursor.getInt(0));
@@ -286,24 +491,36 @@ public class DBTools extends SQLiteOpenHelper {
         return show;
     }
 
-    // TODO Update to new layout
     public ShowInfo getShow(String id) {
-
         SQLiteDatabase db = this.getReadableDatabase();
-
-        String selectQuery = String.format(QUERY_GET_SHOW_BY_ID, id);
-
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        if (cursor.moveToFirst()) {
-
-            return makeShowFromCursor(cursor);
-
-        }
-
-        return null;
-
+        ShowInfo showInfo = getShow(id, db);
+        db.close();
+        return  showInfo;
     }
 
+    private ShowInfo getShow(String id,SQLiteDatabase db) {
 
+        Cursor cursorShow = db.rawQuery(String.format(QUERY_GET_SHOW_BY_ID, id), null);
+        if (cursorShow.moveToFirst()) {
+            ShowInfo show = makeShowFromCursor(cursorShow);
+            Cursor cursorAka = db.rawQuery(String.format(QUERY_GET_AKA_BY_ID, id), null);
+            int count = cursorAka.getCount() ;
+            cursorAka.moveToFirst();
+            while ( count > 0 ){
+                show.addAka(cursorAka.getString(1), cursorAka.getString(2));
+                count--;
+                cursorAka.moveToNext();
+            }
+            Cursor cursorGenre = db.rawQuery(String.format(QUERY_GET_GENRE_BY_ID, id), null);
+            count = cursorGenre.getCount();
+            cursorGenre.moveToFirst();
+            while (count > 0){
+                show.addGenre(cursorGenre.getString(1));
+                count--;
+                cursorGenre.moveToNext();
+            }
+            return show;
+        }
+        return null;
+    }
 }

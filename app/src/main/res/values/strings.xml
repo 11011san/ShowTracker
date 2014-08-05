@@ -9,5 +9,14 @@
     <string name="search_title">Add New Show</string>
     <string name="search_entery_added">Added </string>
     <string name="search_edit_hint">Show name</string>
+    <string name="search_entery_exixts">Already Exists</string>
+    <string name="week_view">Week View</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
 
 </resources>

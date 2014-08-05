@@ -11,7 +11,6 @@ import android.widget.TextView;
  * Created by 11011_000 on 2014-07-31.
  */
 public class SearchAdapter extends ArrayAdapter<ShowInfo> {
-    public final static int ID_TAG = 1;
 
     public SearchAdapter(Context context, ShowInfo[] list) {
         super(context, R.layout.search_row, list);

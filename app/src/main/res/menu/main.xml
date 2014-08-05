@@ -1,12 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity" >
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
     <item android:id="@+id/action_add_show"
         android:title="@string/action_add_show"
         android:orderInCategory="100"
         android:showAsAction="ifRoom" />
+    <item android:id="@+id/action_week_view"
+        android:title="@string/week_view"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom" />
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="200"
+        android:showAsAction="never" />
+
 </menu>
