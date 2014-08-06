@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -91,8 +91,3 @@ public class TextProgressBar extends ProgressBar
     drawableStateChanged();
   }
 }
-
-/* Location:           C:\Users\Ana\AppData\Local\Temp\_tc1\tools\classes-dex2jar.jar
- * Qualified Name:     se.northdivision.android.tvjunkie.view.TextProgressBar
- * JD-Core Version:    0.6.0
- */

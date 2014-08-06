@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.adapter;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -7,14 +7,19 @@ import android.widget.ExpandableListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.mitucha.showtracker.util.DBTools;
+import se.mitucha.showtracker.R;
+import se.mitucha.showtracker.info.EpisodeInfo;
+import se.mitucha.showtracker.info.ShowInfo;
+
 /**
  * Created by mr11011 on 2014-08-06.
  */
 public class SeasonActivity extends Activity {
 
     private ExpandableListView seasonList;
-    public final static String SHOW_TAG = "se.mitucha.showtracker.SeasonActivity.SHOW";
-    public final static String SEASON_TAG = "se.mitucha.showtracker.SeasonActivity.SEASON";
+    public final static String SHOW_TAG = "se.mitucha.showtracker.adapter.SeasonActivity.SHOW";
+    public final static String SEASON_TAG = "se.mitucha.showtracker.adapter.SeasonActivity.SEASON";
     private DBTools dbTools;
 
 

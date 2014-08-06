@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -19,13 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SearchActivity"
+        <activity android:name=".activity.SearchActivity"
             android:label="@string/search_title"
             android:screenOrientation="portrait"/>
-        <activity android:name=".EpisodeWeekActivity"
+        <activity android:name=".activity.EpisodeWeekActivity"
             android:label="@string/week_view"
             android:screenOrientation="portrait"/>
-        <activity android:name=".SeasonActivity"
+        <activity android:name=".adapter.SeasonActivity"
             android:screenOrientation="portrait"/>
     </application>
 

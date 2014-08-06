@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.util;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,6 +12,9 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+
+import se.mitucha.showtracker.info.EpisodeInfo;
+import se.mitucha.showtracker.info.ShowInfo;
 
 public class DBTools extends SQLiteOpenHelper {
 
@@ -71,12 +74,12 @@ public class DBTools extends SQLiteOpenHelper {
     private final static String QUERY_COUNT_EPISODE_BY_ID_DATE_BY = "SELECT COUNT(*) FROM episode WHERE id_show=\'%1$s\' AND air_date <= \'%2$s\'";
     private final static String QUERY_COUNT_EPISODE_BY_ID_DATE_FROM = "SELECT COUNT(*) FROM episode WHERE id_show=\'%1$s\' AND air_date >= \'%2$s\'";
     private final static String QUERY_GET_EPISODE_BY_ID_SEASON = "SELECT * FROM episode WHERE id_show=\'%1$s\' AND season = \'%2$s\'";
+    private final static String QUERY_GET_EPISODE_BY_ID_DATE_BY = "SELECT * FROM episode WHERE id_show=\'%1$s\' AND air_date <= \'%2$s\' ORDER BY air_date DESC";
+    private final static String QUERY_GET_EPISODE_BY_ID_DATE_FROM = "SELECT * FROM episode WHERE id_show=\'%1$s\' AND air_date > \'%2$s\' ORDER BY air_date ASC";
+
 
     public DBTools(Context applicationContext) {
-
         super(applicationContext, "show.db", null, 2);
-
-
     }
 
     @Override
@@ -348,6 +351,32 @@ public class DBTools extends SQLiteOpenHelper {
         return cursor.getCount() == 1;
     }
 
+    public Calendar latestEpisode(int id , Calendar date){
+        SQLiteDatabase db = getReadableDatabase();
+        String selectQuery = String.format(QUERY_GET_EPISODE_BY_ID_DATE_BY, id, date.getTimeInMillis());
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        Calendar calendar = null;
+        if(cursor.moveToFirst()) {
+            calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(cursor.getLong(4));
+        }
+        db.close();
+        return calendar;
+    }
+
+    public Calendar nextEpisode(int id , Calendar date){
+        SQLiteDatabase db = getReadableDatabase();
+        String selectQuery = String.format(QUERY_GET_EPISODE_BY_ID_DATE_FROM, id, date.getTimeInMillis());
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        Calendar calendar = null;
+        if(cursor.moveToFirst()) {
+            calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(cursor.getLong(4));
+        }
+        db.close();
+        return calendar;
+    }
+
     public boolean haveEpisode(String id, String epNum) {
         SQLiteDatabase db = this.getReadableDatabase();
         boolean result = haveEpisode(id,epNum,db);
@@ -472,7 +501,7 @@ public class DBTools extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(String.format(QUERY_GET_EPISODE_BY_PRIM ,Integer.toString(showId),Integer.toString(epNum)), null);
-       cursor.moveToFirst();
+        cursor.moveToFirst();
         EpisodeInfo episodeInfo = makeEpisodeFromCursor(cursor,db);
         db.close();
         return episodeInfo;

@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -15,6 +15,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+
+import se.mitucha.showtracker.util.DBTools;
+import se.mitucha.showtracker.adapter.EpisodeAdapter;
+import se.mitucha.showtracker.info.EpisodeInfo;
+import se.mitucha.showtracker.R;
 
 /**
  * Created by mr11011 on 2014-08-04.

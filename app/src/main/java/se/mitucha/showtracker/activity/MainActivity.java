@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,6 +13,12 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import se.mitucha.showtracker.util.DBTools;
+import se.mitucha.showtracker.R;
+import se.mitucha.showtracker.adapter.SeasonActivity;
+import se.mitucha.showtracker.adapter.SerisAdapter;
+import se.mitucha.showtracker.info.ShowInfo;
 
 
 public class MainActivity extends Activity {

@@ -1,7 +1,9 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.info;
 
 import java.io.Serializable;
 import java.util.Calendar;
+
+import se.mitucha.showtracker.info.ShowInfo;
 
 /**
  * Created by mr11011 on 2014-08-03.

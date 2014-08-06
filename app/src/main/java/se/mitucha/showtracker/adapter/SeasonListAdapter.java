@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
+
+import se.mitucha.showtracker.util.DBTools;
+import se.mitucha.showtracker.R;
+import se.mitucha.showtracker.info.EpisodeInfo;
 
 public class SeasonListAdapter extends BaseExpandableListAdapter {
 

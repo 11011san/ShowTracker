@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -14,6 +14,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.List;
+
+import se.mitucha.showtracker.util.DBTools;
+import se.mitucha.showtracker.R;
+import se.mitucha.showtracker.adapter.SearchAdapter;
+import se.mitucha.showtracker.info.ShowInfo;
+import se.mitucha.showtracker.get.DoSearch;
+import se.mitucha.showtracker.get.GetEpisodeInfo;
 
 
 /**
@@ -53,7 +60,7 @@ public class SearchActivity extends Activity {
 
 
 
-        final AsyncTask search =  (new GetData.DoSearch(this)).execute(searchField.getText().toString());
+        final AsyncTask search =  (new DoSearch(this)).execute(searchField.getText().toString());
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -94,7 +101,7 @@ public class SearchActivity extends Activity {
                             Toast.makeText(getApplicationContext(), getString(R.string.search_entery_exixts) + " : " + showInfo.getTitle(), Toast.LENGTH_LONG).show();
                         }else {
                             db.insertShow(showInfo);
-                            (new GetData.GetEpisodeInfo(SearchActivity.this,null)).execute(Integer.toString(showInfo.getId()));
+                            (new GetEpisodeInfo(SearchActivity.this,null)).execute(Integer.toString(showInfo.getId()));
                             Toast.makeText(getApplicationContext(), getString(R.string.search_entery_added) + " " + showInfo.getTitle(), Toast.LENGTH_LONG).show();
                         }
                     }

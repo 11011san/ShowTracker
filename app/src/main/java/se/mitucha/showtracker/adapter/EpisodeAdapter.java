@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Calendar;
+
+import se.mitucha.showtracker.R;
+import se.mitucha.showtracker.info.EpisodeInfo;
 
 /**
  * Created by mr11011 on 2014-08-04.

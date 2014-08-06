@@ -11,7 +11,7 @@
         android:layout_margin="10dp"
         android:textSize="20sp"
         android:textStyle="bold"/>
-    <se.mitucha.showtracker.TextProgressBar
+    <se.mitucha.showtracker.view.TextProgressBar
         android:id="@+id/serieViewProgressbar"
         android:visibility="visible"
         android:layout_width="match_parent"

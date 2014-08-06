@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.info;
 
 import java.io.Serializable;
 import java.util.ArrayList;

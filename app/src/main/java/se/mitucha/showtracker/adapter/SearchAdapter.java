@@ -1,4 +1,4 @@
-package se.mitucha.showtracker;
+package se.mitucha.showtracker.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import se.mitucha.showtracker.R;
+import se.mitucha.showtracker.info.ShowInfo;
 
 /**
  * Created by 11011_000 on 2014-07-31.
