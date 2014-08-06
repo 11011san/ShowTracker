@@ -1,11 +1,12 @@
 package se.mitucha.showtracker;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 /**
  * Created by mr11011 on 2014-08-03.
  */
-public class EpisodeInfo {
+public class EpisodeInfo implements Serializable{
 
     private int showId;
     private int epNum;

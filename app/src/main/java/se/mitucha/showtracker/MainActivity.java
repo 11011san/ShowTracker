@@ -53,10 +53,29 @@ public class MainActivity extends Activity {
                     return true;
                 }
             });
+            serisListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Integer showId = (Integer) view.getTag();
+                    final ShowInfo showInfo = getShow(showId);
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this, SeasonActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(SeasonActivity.SHOW_TAG,showInfo);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+            });
 
         }
     }
 
+    private ShowInfo getShow(int id){
+        for(ShowInfo showInfo : serisList)
+            if(id==showInfo.getId())
+                return showInfo;
+        return null;
+    }
 
 
     @Override

@@ -67,6 +67,10 @@ public class DBTools extends SQLiteOpenHelper {
     private final static String QUERY_GET_EPISODE_BY_PRIM = "SELECT * FROM episode WHERE id_show=\'%1$s\' AND ep_num='%2$s'";
     private final static String QUERY_GET_AKA_BY_ID = "SELECT * FROM aka WHERE id_show=\'%1$s\'";
     private final static String QUERY_GET_GENRE_BY_ID = "SELECT * FROM genre WHERE id_show=\'%1$s\'";
+    private final static String QUERY_COUNT_EPISODE_BY_ID_SEEN = "SELECT COUNT(seen) FROM episode WHERE id_show=\'%1$s\' AND SEEN=\'%2$s\'";
+    private final static String QUERY_COUNT_EPISODE_BY_ID_DATE_BY = "SELECT COUNT(*) FROM episode WHERE id_show=\'%1$s\' AND air_date <= \'%2$s\'";
+    private final static String QUERY_COUNT_EPISODE_BY_ID_DATE_FROM = "SELECT COUNT(*) FROM episode WHERE id_show=\'%1$s\' AND air_date >= \'%2$s\'";
+    private final static String QUERY_GET_EPISODE_BY_ID_SEASON = "SELECT * FROM episode WHERE id_show=\'%1$s\' AND season = \'%2$s\'";
 
     public DBTools(Context applicationContext) {
 
@@ -290,6 +294,53 @@ public class DBTools extends SQLiteOpenHelper {
         return result;
     }
 
+    public int countSeen(String id, boolean seen){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = String.format(QUERY_COUNT_EPISODE_BY_ID_SEEN, id, (seen)?1:0);
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        db.close();
+        return count;
+
+    }
+
+    public int countEpisodesBy(String id, Calendar by){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = String.format(QUERY_COUNT_EPISODE_BY_ID_DATE_BY, id, by.getTimeInMillis()+10);
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        db.close();
+        return count;
+
+    }
+
+    public List<EpisodeInfo> getEpisodeByShowSeason(String id, int season){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = String.format(QUERY_GET_EPISODE_BY_ID_SEASON, id, season);
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        List<EpisodeInfo> list = makeListEpisodeFromCursor(cursor,db);
+        db.close();
+        return list;
+
+    }
+
+    public int countEpisodesFrom(String id, Calendar by){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = String.format(QUERY_COUNT_EPISODE_BY_ID_DATE_FROM, id ,by.getTimeInMillis()-10);
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        db.close();
+        return count;
+
+    }
+
     private boolean haveAka(String id, String country, SQLiteDatabase db){
 
         String selectQuery = String.format(QUERY_GET_AKA_BY_PRIM, id, country);
@@ -411,16 +462,8 @@ public class DBTools extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(String.format(QUERY_ALL_EPISODE_BY_ID,Integer.toString(id)), null);
-        ArrayList<EpisodeInfo> list = new ArrayList<EpisodeInfo>();
-        int count = cursor.getCount();
-        cursor.moveToFirst();
-        while (count < 0){
+        List<EpisodeInfo> list = makeListEpisodeFromCursor(cursor,db);
 
-            list.add(makeEpisodeFromCursor(cursor,db)) ;
-            count--;
-            cursor.moveToNext();
-
-        }
         db.close();
         return list;
 
@@ -434,6 +477,36 @@ public class DBTools extends SQLiteOpenHelper {
         db.close();
         return episodeInfo;
 
+    }
+
+    private List<EpisodeInfo> makeListEpisodeFromCursor(Cursor cursor, SQLiteDatabase db ){
+        List<EpisodeInfo> list = new ArrayList<EpisodeInfo>();
+        cursor.moveToFirst();
+        HashMap<Integer,ShowInfo> map = new HashMap<Integer, ShowInfo>();
+        do{
+            EpisodeInfo ep = new EpisodeInfo();
+            ep.setShowId(cursor.getInt(0));
+            ep.setEpNum(cursor.getInt(1));
+            ep.setSeasonNum(cursor.getInt(2));
+            ep.setProdNum(cursor.getString(3));
+            if(cursor.getLong(4) == -1)
+                ep.setAirDate(null);
+            else {
+                Calendar cal = new GregorianCalendar();
+                cal.setTimeInMillis(cursor.getLong(4));
+                ep.setAirDate(cal);
+            }
+            ep.setLink(cursor.getString(5));
+            ep.setTitle(cursor.getString(6));
+            ep.setSeason(cursor.getInt(7));
+            ep.setSeen(cursor.getInt(8)==1);
+            if(map.containsKey(ep.getShowId()))
+                ep.setShow(map.get(ep.getShowId()));
+            else
+                ep.setShow(getShow(cursor.getString(0), db));
+            list.add(ep);
+        }while(cursor.moveToNext());
+        return list;
     }
 
     private EpisodeInfo makeEpisodeFromCursor( Cursor cursor, SQLiteDatabase db ){
@@ -457,6 +530,8 @@ public class DBTools extends SQLiteOpenHelper {
         ep.setShow(getShow(cursor.getString(0),db));
         return ep;
     }
+
+
 
     private ShowInfo makeShowFromCursor(Cursor cursor){
 

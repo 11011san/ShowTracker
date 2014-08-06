@@ -1,5 +1,6 @@
 package se.mitucha.showtracker;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -7,7 +8,7 @@ import java.util.HashMap;
 /**
  * Created by 11011_000 on 2014-07-31.
  */
-public class ShowInfo {
+public class ShowInfo implements Serializable {
 
     private String title;
     private int id;

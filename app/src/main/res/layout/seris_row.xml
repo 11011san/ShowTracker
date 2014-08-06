@@ -11,6 +11,22 @@
         android:layout_margin="10dp"
         android:textSize="20sp"
         android:textStyle="bold"/>
+    <se.mitucha.showtracker.TextProgressBar
+        android:id="@+id/serieViewProgressbar"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:max="100"
+        android:progress="50"
+        android:secondaryProgress="90"
+        android:progressDrawable="@drawable/progressbar_color"
+        style="@android:style/Widget.ProgressBar.Horizontal" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/statusText"
+        android:layout_margin="10dp"/>
+
 
 
 </LinearLayout>

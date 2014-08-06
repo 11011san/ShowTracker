@@ -17,31 +17,46 @@ public final class R {
     public static final class drawable {
         public static final int check=0x7f020000;
         public static final int ic_launcher=0x7f020001;
+        public static final int progressbar_color=0x7f020002;
     }
     public static final class id {
-        public static final int action_add_show=0x7f080014;
-        public static final int action_settings=0x7f080016;
-        public static final int action_week_view=0x7f080015;
-        public static final int dayListFriday=0x7f080009;
-        public static final int dayListMonday=0x7f080005;
-        public static final int dayListSaturday=0x7f08000a;
-        public static final int dayListSunday=0x7f08000b;
-        public static final int dayListThursday=0x7f080008;
-        public static final int dayListTuesday=0x7f080006;
-        public static final int dayListWednesday=0x7f080007;
-        public static final int dayText=0x7f080004;
+        public static final int action_add_show=0x7f080022;
+        public static final int action_settings=0x7f080024;
+        public static final int action_week_view=0x7f080023;
+        public static final int dateText=0x7f080003;
+        public static final int dayFridayText=0x7f08000d;
+        public static final int dayListFriday=0x7f08000e;
+        public static final int dayListMonday=0x7f080006;
+        public static final int dayListSaturday=0x7f080010;
+        public static final int dayListSunday=0x7f080012;
+        public static final int dayListThursday=0x7f08000c;
+        public static final int dayListTuesday=0x7f080008;
+        public static final int dayListWednesday=0x7f08000a;
+        public static final int dayMondayText=0x7f080005;
+        public static final int daySaturdayText=0x7f08000f;
+        public static final int daySundayText=0x7f080011;
+        public static final int dayThursdayText=0x7f08000b;
+        public static final int dayTuesdayText=0x7f080007;
+        public static final int dayWednesdayText=0x7f080009;
+        public static final int episodeDateText=0x7f08001c;
         public static final int episodeInfo=0x7f080002;
-        public static final int resultList=0x7f08000f;
-        public static final int searchButton=0x7f08000e;
-        public static final int searchField=0x7f08000d;
-        public static final int seen=0x7f080003;
+        public static final int episodeNumberText=0x7f08001a;
+        public static final int episodeTitleText=0x7f08001b;
+        public static final int resultList=0x7f080016;
+        public static final int searchButton=0x7f080015;
+        public static final int searchField=0x7f080014;
+        public static final int seasonLableText=0x7f08001d;
+        public static final int seasonList=0x7f08001e;
+        public static final int seen=0x7f080004;
+        public static final int serieViewProgressbar=0x7f080020;
         public static final int serisList=0x7f080000;
-        public static final int serisName=0x7f080013;
+        public static final int serisName=0x7f08001f;
         public static final int show_name=0x7f080001;
-        public static final int started=0x7f080011;
-        public static final int status=0x7f080012;
-        public static final int title=0x7f080010;
-        public static final int weekText=0x7f08000c;
+        public static final int started=0x7f080018;
+        public static final int status=0x7f080019;
+        public static final int statusText=0x7f080021;
+        public static final int title=0x7f080017;
+        public static final int weekText=0x7f080013;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -49,7 +64,10 @@ public final class R {
         public static final int episode_week=0x7f030002;
         public static final int search=0x7f030003;
         public static final int search_row=0x7f030004;
-        public static final int seris_row=0x7f030005;
+        public static final int season_episode_row=0x7f030005;
+        public static final int season_item=0x7f030006;
+        public static final int season_list=0x7f030007;
+        public static final int seris_row=0x7f030008;
     }
     public static final class menu {
         public static final int main=0x7f070000;
@@ -67,11 +85,12 @@ public final class R {
         public static final int search_entery_added=0x7f050009;
         public static final int search_entery_exixts=0x7f05000a;
         public static final int search_title=0x7f05000b;
-        public static final int sunday=0x7f05000c;
-        public static final int thursday=0x7f05000d;
-        public static final int tuesday=0x7f05000e;
-        public static final int wednesday=0x7f05000f;
-        public static final int week_view=0x7f050010;
+        public static final int season_dialog_title=0x7f05000c;
+        public static final int sunday=0x7f05000d;
+        public static final int thursday=0x7f05000e;
+        public static final int tuesday=0x7f05000f;
+        public static final int wednesday=0x7f050010;
+        public static final int week_view=0x7f050011;
     }
     public static final class style {
         /**  Customize your theme here. 

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by mr11011 on 2014-08-04.
@@ -28,6 +29,13 @@ public class EpisodeWeekActivity extends Activity {
     ListView fri;
     ListView sat;
     ListView sun;
+    TextView monText;
+    TextView tusText;
+    TextView wedText;
+    TextView thuText;
+    TextView friText;
+    TextView satText;
+    TextView sunText;
     TextView weekText;
 
 
@@ -42,11 +50,18 @@ public class EpisodeWeekActivity extends Activity {
         fri = (ListView) findViewById(R.id.dayListFriday);
         sat = (ListView) findViewById(R.id.dayListSaturday);
         sun = (ListView) findViewById(R.id.dayListSunday);
+        monText = (TextView) findViewById(R.id.dayMondayText);
+        tusText = (TextView) findViewById(R.id.dayTuesdayText);
+        wedText = (TextView) findViewById(R.id.dayWednesdayText);
+        thuText = (TextView) findViewById(R.id.dayThursdayText);
+        friText = (TextView) findViewById(R.id.dayFridayText);
+        satText = (TextView) findViewById(R.id.daySaturdayText);
+        sunText = (TextView) findViewById(R.id.daySundayText);
         weekText = (TextView) findViewById(R.id.weekText);
 //        ListView listVew = (ListView) findViewById(R.id.dayList);
         db = new DBTools(this);
 
-                Calendar cal = GregorianCalendar.getInstance();
+        Calendar cal = GregorianCalendar.getInstance();
         curentWeek = cal.get(Calendar.WEEK_OF_YEAR);
         day = cal.get(Calendar.DAY_OF_MONTH);
         month = cal.get(Calendar.MONTH);
@@ -61,28 +76,42 @@ public class EpisodeWeekActivity extends Activity {
     private void updateLists(int week){
         List<EpisodeInfo> list;
         posishenWeek = week;
-        weekText.setText("Week " + week);
+        if(week == curentWeek)
+            weekText.setText("This Week " + week);
+        else if (week == curentWeek+1)
+            weekText.setText("Next Week " + week);
+        else if (week == curentWeek-1)
+            weekText.setText("Last Week " + week);
+        else
+            weekText.setText("Week " + week);
         Calendar calendar = getDate(week,MONDAY);
         list = db.getEpisodeInRange(calendar,calendar);
         setList(mon,list);
+        monText.setText("Monday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
         calendar = getDate(week,TUESDAY);
         list = db.getEpisodeInRange(calendar,calendar);
         setList(tus,list);
+        tusText.setText("Tuesday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
         calendar = getDate(week,WEDNESDAY);
         list = db.getEpisodeInRange(calendar,calendar);
         setList(wed,list);
+        wedText.setText("Wednesday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
         calendar = getDate(week,THURSDAY);
         list = db.getEpisodeInRange(calendar,calendar);
         setList(thu, list);
+        thuText.setText("Thursday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
         calendar = getDate(week,FRIDAY);
         list = db.getEpisodeInRange(calendar,calendar);
         setList(fri,list);
+        friText.setText("Friday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
         calendar = getDate(week,SATURDAY);
         list = db.getEpisodeInRange(calendar,calendar);
         setList(sat,list);
+        satText.setText("Saturday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
         calendar = getDate(week,SUNDAY);
         list = db.getEpisodeInRange(calendar,calendar);
         setList(sun,list);
+        sunText.setText("Sunday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
 
     }
 
@@ -100,7 +129,6 @@ public class EpisodeWeekActivity extends Activity {
     private int day;
     private int month;
     private int year;
-    private int weeksInYear;
 
 
 
@@ -123,7 +151,7 @@ public class EpisodeWeekActivity extends Activity {
     /**** Method for Setting the Height of the ListView dynamically.
      **** Hack to fix the issue of not showing all the items of the ListView
      **** when placed inside a ScrollView  ****/
-    public static void setListViewHeightBasedOnChildren(ListView listView) {
+    public void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null)
             return;
@@ -146,7 +174,7 @@ public class EpisodeWeekActivity extends Activity {
     }
 
 
-    AdapterView.OnItemLongClickListener longClickListener = new AdapterView.OnItemLongClickListener() {
+    private AdapterView.OnItemLongClickListener longClickListener = new AdapterView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
             ImageView seen = (ImageView) view.findViewById(R.id.seen);

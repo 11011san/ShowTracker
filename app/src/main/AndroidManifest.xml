@@ -25,6 +25,8 @@
         <activity android:name=".EpisodeWeekActivity"
             android:label="@string/week_view"
             android:screenOrientation="portrait"/>
+        <activity android:name=".SeasonActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
