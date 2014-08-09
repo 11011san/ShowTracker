@@ -23,7 +23,7 @@ public class SearchAdapter extends ArrayAdapter<ShowInfo> {
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater theInflater = LayoutInflater.from(getContext());
 
-        View theView = theInflater.inflate(R.layout.search_row,parent,false);
+        View theView = theInflater.inflate(R.layout.search_row, parent, false);
 
         ShowInfo tvShow = getItem(position);
 

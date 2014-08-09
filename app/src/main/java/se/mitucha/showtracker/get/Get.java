@@ -23,33 +23,45 @@ public abstract class Get<Params, Progress, Result> extends AsyncTask<Params, Pr
 
     private static final String TAG = "Show Tracker Output";
 
-    protected XmlPullParser getParser(String url) throws URISyntaxException, IOException, XmlPullParserException {
-        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-        XmlPullParser parser = factory.newPullParser();
-
-        DefaultHttpClient client = new DefaultHttpClient();
-        Log.d("Show Tracker", "url = " + url);
-        HttpGet method = new HttpGet(new URI(url));
-
-        HttpResponse res = client.execute(method);
-        InputStreamReader is = new InputStreamReader(res.getEntity().getContent());
-        if(false) {
-            HttpResponse res1 = client.execute(method);
-            InputStream in = res1.getEntity().getContent();
-            Log.e(TAG, ">>>>>PRINTING<<<<<");
-            Log.e(TAG, in.toString());
-            Log.e(TAG, convertStreamToString(in));
-        }
-        parser.setInput(is);
-        return parser;
-    }
     private static String convertStreamToString(java.io.InputStream is) {
         try {
             return new java.util.Scanner(is).useDelimiter("\\A").next();
         } catch (java.util.NoSuchElementException e) {
             return "";
         }
+    }
+
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        if(client!=null)
+            client.getConnectionManager().shutdown();
+    }
+
+    private DefaultHttpClient client=null;
+
+    protected XmlPullParser getParser(String url) throws URISyntaxException, IOException, XmlPullParserException {
+        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        XmlPullParser parser = factory.newPullParser();
+
+        DefaultHttpClient client = new DefaultHttpClient();
+        this.client = client;
+        Log.d("Show Tracker", "url = " + url);
+        HttpGet method = new HttpGet(new URI(url));
+
+        HttpResponse res = client.execute(method);
+        InputStreamReader is = new InputStreamReader(res.getEntity().getContent());
+        if (false) {
+            HttpResponse res1 = client.execute(method);
+            InputStream in = res1.getEntity().getContent();
+            Log.e(TAG, ">>>>>PRINTING<<<<<");
+            Log.e(TAG, in.toString());
+            Log.e(TAG, convertStreamToString(in));
+        }
+        this.client = null;
+        parser.setInput(is);
+        return parser;
     }
 
 }

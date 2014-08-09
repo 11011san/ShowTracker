@@ -11,15 +11,33 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import se.mitucha.showtracker.util.DBTools;
 import se.mitucha.showtracker.R;
 import se.mitucha.showtracker.info.EpisodeInfo;
+import se.mitucha.showtracker.util.DBTools;
 
 public class SeasonListAdapter extends BaseExpandableListAdapter {
 
     private Activity context;
     private List<List<EpisodeInfo>> seasonLists;
     private DBTools dbTools;
+    private View.OnLongClickListener longClickListener = new View.OnLongClickListener() {
+
+        @Override
+        public boolean onLongClick(View view) {
+            ImageView seen = (ImageView) view.findViewById(R.id.seen);
+            String[] epId = ((String) view.getTag()).trim().split("-");
+            EpisodeInfo episodeInfo = dbTools.getEpisode(Integer.parseInt(epId[0]), Integer.parseInt(epId[1]));
+            episodeInfo.setSeen(!episodeInfo.isSeen());
+            if (episodeInfo.isSeen())
+                seen.setVisibility(View.VISIBLE);
+            else
+                seen.setVisibility(View.INVISIBLE);
+            dbTools.updateEpisode(episodeInfo, true);
+            return true;
+        }
+
+    };
+
     public SeasonListAdapter(Activity context, List<List<EpisodeInfo>> seasonLists) {
         this.context = context;
         this.seasonLists = seasonLists;
@@ -34,7 +52,6 @@ public class SeasonListAdapter extends BaseExpandableListAdapter {
         return childPosition;
     }
 
-
     public View getChildView(final int groupPosition, final int childPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
         EpisodeInfo episodeInfo = (EpisodeInfo) getChild(groupPosition, childPosition);
@@ -48,14 +65,20 @@ public class SeasonListAdapter extends BaseExpandableListAdapter {
         TextView episodeDateText = (TextView) convertView.findViewById(R.id.episodeDateText);
         ImageView seen = (ImageView) convertView.findViewById(R.id.seen);
 
-        episodeNumberText.setText(String.format("%dS%02dE",episodeInfo.getSeason(),episodeInfo.getSeasonNum()));
+        if(groupPosition==0){
+            episodeNumberText.setText(String.format("Season %d",  episodeInfo.getSeasonNum()));
+        }else
+            episodeNumberText.setText(String.format("%dS%02dE", episodeInfo.getSeason(), episodeInfo.getSeasonNum()));
+
+
+
         episodeTitleText.setText(episodeInfo.getTitle());
         episodeDateText.setText(String.format("%1$tY-%1$tm-%1$td", episodeInfo.getAirDate()));
-        if(episodeInfo.isSeen())
+        if (episodeInfo.isSeen())
             seen.setVisibility(View.VISIBLE);
         else
             seen.setVisibility(View.INVISIBLE);
-        convertView.setTag(Integer.toString(episodeInfo.getShowId())+"-"+Integer.toString(episodeInfo.getEpNum()));
+        convertView.setTag(Integer.toString(episodeInfo.getShowId()) + "-" + Integer.toString(episodeInfo.getEpNum()));
         convertView.setOnLongClickListener(longClickListener);
         return convertView;
     }
@@ -86,28 +109,14 @@ public class SeasonListAdapter extends BaseExpandableListAdapter {
                     null);
         }
         TextView item = (TextView) convertView.findViewById(R.id.seasonLableText);
-        item.setText( "Season " + (groupPosition +1));
+        if (groupPosition == 0)
+            item.setText("Special");
+        else
+            item.setText("Season " + (groupPosition));
         return convertView;
+
+
     }
-
-
-    private View.OnLongClickListener longClickListener = new View.OnLongClickListener() {
-
-        @Override
-        public boolean onLongClick(View view) {
-            ImageView seen = (ImageView) view.findViewById(R.id.seen);
-            String[] epId = ((String) view.getTag()).trim().split("-");
-            EpisodeInfo episodeInfo = dbTools.getEpisode(Integer.parseInt(epId[0]),Integer.parseInt(epId[1]));
-            episodeInfo.setSeen(!episodeInfo.isSeen());
-            if(episodeInfo.isSeen())
-                seen.setVisibility(View.VISIBLE);
-            else
-                seen.setVisibility(View.INVISIBLE);
-            dbTools.updateEpisode(episodeInfo,true);
-            return true;
-        }
-
-    };
 
     public boolean hasStableIds() {
         return true;

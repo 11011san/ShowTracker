@@ -14,11 +14,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import se.mitucha.showtracker.util.DBTools;
 import se.mitucha.showtracker.R;
-import se.mitucha.showtracker.adapter.SeasonActivity;
 import se.mitucha.showtracker.adapter.SerisAdapter;
 import se.mitucha.showtracker.info.ShowInfo;
+import se.mitucha.showtracker.service.UpdateService;
+import se.mitucha.showtracker.util.DBTools;
+import se.mitucha.showtracker.util.Settings;
 
 
 public class MainActivity extends Activity {
@@ -26,28 +27,48 @@ public class MainActivity extends Activity {
     private ListView serisListView;
     private ArrayList<ShowInfo> serisList;
     private DBTools db = new DBTools(this);
+    private UpdateService updateService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        Settings.makeSettings(this);
         serisListView = (ListView) findViewById(R.id.serisList);
 
+        updateService = UpdateService.getInstant();
+        if(updateService==null) {
+            startService(new Intent(this, UpdateService.class));
+        }
+        UpdateService.setContext(this);
+
+        /*Intent intent = new Intent(this, BroadcastSync.class);
+        intent.setAction(Intent.ACTION_SYNC);
+        this.registerReceiver(new BroadcastSync(), IntentFilter.create());*/
+
+
+        updateList();
+
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         updateList();
     }
 
-    private void updateList(){
+    private void updateList() {
         serisList = db.getAllShows();
-        if(serisList.size()!=0) {
-            Collections.sort(serisList,new Comparator<ShowInfo>() {
+        if (serisList.size() != 0) {
+            Collections.sort(serisList, new Comparator<ShowInfo>() {
                 @Override
                 public int compare(ShowInfo lhs, ShowInfo rhs) {
                     return lhs.getTitle().compareToIgnoreCase(rhs.getTitle());
                 }
             });
             ShowInfo[] list = new ShowInfo[serisList.size()];
-            list =  serisList.toArray(list);
+            list = serisList.toArray(list);
             ListAdapter serisAdapter = new SerisAdapter(this, list);
             serisListView.setAdapter(serisAdapter);
             serisListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -67,7 +88,7 @@ public class MainActivity extends Activity {
                     Intent intent = new Intent();
                     intent.setClass(MainActivity.this, SeasonActivity.class);
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable(SeasonActivity.SHOW_TAG,showInfo);
+                    bundle.putSerializable(SeasonActivity.SHOW_TAG, showInfo);
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }
@@ -76,9 +97,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    private ShowInfo getShow(int id){
-        for(ShowInfo showInfo : serisList)
-            if(id==showInfo.getId())
+    private ShowInfo getShow(int id) {
+        for (ShowInfo showInfo : serisList)
+            if (id == showInfo.getId())
                 return showInfo;
         return null;
     }
@@ -98,20 +119,22 @@ public class MainActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            return true;
-        }else if(id == R.id.action_add_show){
+            Intent theIntent = new Intent(getApplication(), SettingActivity.class);
+            startActivity(theIntent);
+        } else if (id == R.id.action_add_show) {
             Intent theIntent = new Intent(getApplication(), SearchActivity.class);
-            startActivityForResult(theIntent, 0);
+            startActivity(theIntent);
             return true;
-        }else if(id == R.id.action_week_view){
+        } else if (id == R.id.action_week_view) {
             Intent theIntent = new Intent(getApplication(), EpisodeWeekActivity.class);
-            startActivityForResult(theIntent, 0);
+            startActivity(theIntent);
+        } else if (id==R.id.action_update){
+            if(updateService==null)
+                updateService = UpdateService.getInstant();
+            updateService.update();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        updateList();
-    }
+
 }

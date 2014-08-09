@@ -3,11 +3,15 @@
     tools:context=".MainActivity" >
     <item android:id="@+id/action_add_show"
         android:title="@string/action_add_show"
-        android:orderInCategory="100"
+        android:orderInCategory="102"
         android:showAsAction="ifRoom" />
     <item android:id="@+id/action_week_view"
         android:title="@string/week_view"
         android:orderInCategory="100"
+        android:showAsAction="ifRoom" />
+    <item android:id="@+id/action_update"
+        android:title="@string/update"
+        android:orderInCategory="101"
         android:showAsAction="ifRoom" />
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"

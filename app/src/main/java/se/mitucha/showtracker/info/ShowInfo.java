@@ -25,7 +25,7 @@ public class ShowInfo implements Serializable {
     private String networkCountry;
     private String airTime;
     private String airDay;
-    private HashMap<String,String> akas;
+    private HashMap<String, String> akas;
     private Calendar ended;
 
     public ShowInfo() {
@@ -34,7 +34,7 @@ public class ShowInfo implements Serializable {
 
     }
 
-    public ShowInfo(String title, int id, int started, Calendar startdate, String classification, int runtime, String status, String link, String country, int seasons, ArrayList<String> genres, String network, String networkCountry, String airTime, String airDay, HashMap<String, String> akas,Calendar ended) {
+    public ShowInfo(String title, int id, int started, Calendar startdate, String classification, int runtime, String status, String link, String country, int seasons, ArrayList<String> genres, String network, String networkCountry, String airTime, String airDay, HashMap<String, String> akas, Calendar ended) {
         this.title = title;
         this.id = id;
         this.started = started;
@@ -62,15 +62,15 @@ public class ShowInfo implements Serializable {
         this.ended = ended;
     }
 
-    public void addGenre(String genre){
+    public void addGenre(String genre) {
         genres.add(genre);
     }
 
     public void addAka(String country, String name) {
-        akas.put(country,name);
+        akas.put(country, name);
     }
 
-    public String getAka(String country){
+    public String getAka(String country) {
         return akas.get(country);
     }
 

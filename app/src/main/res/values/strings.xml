@@ -19,5 +19,13 @@
     <string name="saturday">Saturday</string>
     <string name="sunday">Sunday</string>
     <string name="season_dialog_title">Pick Season</string>
+    <string name="update">Update</string>
+    <string-array name="connection_method">
+        <item>Mobile</item>
+        <item>Roaming</item>
+        <item>WiFi</item>
+        <item>Ethernet</item>
+    </string-array>
+
 
 </resources>

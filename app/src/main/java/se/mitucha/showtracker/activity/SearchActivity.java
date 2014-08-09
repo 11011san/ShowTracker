@@ -15,12 +15,13 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import se.mitucha.showtracker.util.DBTools;
 import se.mitucha.showtracker.R;
 import se.mitucha.showtracker.adapter.SearchAdapter;
-import se.mitucha.showtracker.info.ShowInfo;
 import se.mitucha.showtracker.get.DoSearch;
 import se.mitucha.showtracker.get.GetEpisodeInfo;
+import se.mitucha.showtracker.info.ShowInfo;
+import se.mitucha.showtracker.util.DBTools;
+import se.mitucha.showtracker.util.NetworkUtil;
 
 
 /**
@@ -50,7 +51,11 @@ public class SearchActivity extends Activity {
     }
 
     public void search(View view) {
-        dialog = new ProgressDialog(this,ProgressDialog.THEME_HOLO_DARK);
+        if(! new NetworkUtil(this).alowedToConect()){
+            Toast.makeText(this,"No allowed connection.",Toast.LENGTH_LONG).show();
+            return;
+        }
+        dialog = new ProgressDialog(this, ProgressDialog.THEME_HOLO_DARK);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setInverseBackgroundForced(true);
         dialog.setIndeterminate(true);
@@ -59,8 +64,7 @@ public class SearchActivity extends Activity {
         dialog.show();
 
 
-
-        final AsyncTask search =  (new DoSearch(this)).execute(searchField.getText().toString());
+        final AsyncTask search = (new DoSearch(this)).execute(searchField.getText().toString());
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -77,7 +81,7 @@ public class SearchActivity extends Activity {
         this.searchEnteries = searchEnteries;
         boolean found = true;
         Log.d("Show Tracker", "Ended Search");
-        if(searchEnteries.size() == 0) { // TODO beter mesege method if no result
+        if (searchEnteries.size() == 0) { // TODO beter mesege method if no result
             Log.d("Show Tracker", "No result");
             ShowInfo show = new ShowInfo();
             show.setTitle("No Shows Found, Sorry.");
@@ -88,7 +92,7 @@ public class SearchActivity extends Activity {
         list = searchEnteries.toArray(list);
         ListAdapter theAdapter = new SearchAdapter(searchResult.getContext(), list);
         searchResult.setAdapter(theAdapter);
-        if(found)
+        if (found)
             searchResult.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -99,9 +103,9 @@ public class SearchActivity extends Activity {
                         if (db.haveShowID(Integer.toString(showInfo.getId()))) {
                             db.updateShow(showInfo);
                             Toast.makeText(getApplicationContext(), getString(R.string.search_entery_exixts) + " : " + showInfo.getTitle(), Toast.LENGTH_LONG).show();
-                        }else {
+                        } else {
                             db.insertShow(showInfo);
-                            (new GetEpisodeInfo(SearchActivity.this,null)).execute(Integer.toString(showInfo.getId()));
+                            (new GetEpisodeInfo(SearchActivity.this, null)).execute(Integer.toString(showInfo.getId()));
                             Toast.makeText(getApplicationContext(), getString(R.string.search_entery_added) + " " + showInfo.getTitle(), Toast.LENGTH_LONG).show();
                         }
                     }
@@ -113,7 +117,7 @@ public class SearchActivity extends Activity {
             dialog.dismiss();
     }
 
-    private ShowInfo getShow(int id){
+    private ShowInfo getShow(int id) {
         for (ShowInfo show : searchEnteries)
             if (show.getId() == id)
                 return show;

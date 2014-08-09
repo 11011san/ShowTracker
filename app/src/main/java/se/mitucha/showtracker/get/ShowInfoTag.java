@@ -7,23 +7,24 @@ import java.util.HashMap;
 /**
  * Created by mr11011 on 2014-08-06.
  */
-public enum SearchTag {
-    RESULTS, SHOW, SHOW_ID, NAME, LINK, COUNTRY, STARTED, ENDED, SEASONS, STATUS, CLASSIFICATION, GENRES, GENRE, NETWORK, AIR_TIME, AIR_DAY, AKAS, AKA, RUNTIME;
-    private static HashMap<String, SearchTag> map = null;
+public enum ShowInfoTag {
+    SHOW_INFO, SHOW_ID, NAME, LINK, COUNTRY, STARTED, ENDED, SEASONS, STATUS, CLASSIFICATION, GENRES, GENRE, NETWORK, AIR_TIME, AIR_DAY, AKAS, AKA, RUNTIME, ORIGIN_COUNTRY, TIMEZONE, START_DATE;
+    private static HashMap<String, ShowInfoTag> map = null;
 
-    private static HashMap<String, SearchTag> getMap() {
+    private static HashMap<String, ShowInfoTag> getMap() {
         if (map == null) {
-            map = new HashMap<String, SearchTag>();
-            for (SearchTag tag : SearchTag.values())
+            map = new HashMap<String, ShowInfoTag>();
+            for (ShowInfoTag tag : ShowInfoTag.values())
                 map.put(tag.toString(), tag);
         }
         return map;
     }
 
-    public static SearchTag getTag(String otherTag) {
-        SearchTag tag = getMap().get(otherTag.trim());
+    public static ShowInfoTag getTag(String otherTag)
+    {
+        ShowInfoTag tag = getMap().get(otherTag.trim());
         if(tag == null)
-            Log.e("Show Tracker", "cant find SearchTag : " + otherTag);
+            Log.e("Show Tracker" , "cant find ShowInfoTag : " + otherTag);
         return tag;
     }
 
@@ -34,16 +35,14 @@ public enum SearchTag {
     @Override
     public String toString() {
         switch (this) {
-            case RESULTS:
-                return "Results";
-            case SHOW:
-                return "show";
+            case SHOW_INFO:
+                return "Showinfo";
             case SHOW_ID:
                 return "showid";
             case NAME:
-                return "name";
+                return "showname";
             case LINK:
-                return "link";
+                return "showlink";
             case COUNTRY:
                 return "country";
             case STARTED:
@@ -72,6 +71,12 @@ public enum SearchTag {
                 return "aka";
             case RUNTIME:
                 return "runtime";
+            case ORIGIN_COUNTRY:
+                return "origin_country";
+            case TIMEZONE:
+                return "timezone";
+            case START_DATE:
+                return "startdate";
         }
         return null;
     }

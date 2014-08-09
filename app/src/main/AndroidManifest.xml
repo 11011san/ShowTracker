@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -25,8 +26,12 @@
         <activity android:name=".activity.EpisodeWeekActivity"
             android:label="@string/week_view"
             android:screenOrientation="portrait"/>
-        <activity android:name=".adapter.SeasonActivity"
+        <activity android:name=".activity.SeasonActivity"
             android:screenOrientation="portrait"/>
+        <service android:name=".service.UpdateService"/>
+        <activity android:name=".activity.SettingActivity"
+            android:label="@string/action_settings"/>
+        <receiver android:name=".broadcast.BroadcastSync"></receiver>
     </application>
 
 </manifest>

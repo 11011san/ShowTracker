@@ -19,28 +19,27 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import se.mitucha.showtracker.util.DBTools;
 import se.mitucha.showtracker.info.EpisodeInfo;
+import se.mitucha.showtracker.util.DBTools;
 
 /**
  * Created by mr11011 on 2014-08-06.
  */
-public class GetEpisodeInfo extends Get<String, String, List<EpisodeInfo> > {
+public class GetEpisodeInfo extends Get<String, String, List<EpisodeInfo>> {
 
+    private static final String tvrage = "http://services.tvrage.com/feeds/episode_list.php?sid=";
+    private ProgressDialog dialog;
+    private Context activity;
+    private PowerManager.WakeLock mWakeLock;
     public GetEpisodeInfo(Context activity, ProgressDialog dialog) {
         this.activity = activity;
         this.dialog = dialog;
     }
 
-    private ProgressDialog dialog;
-    private Context activity;
-    private PowerManager.WakeLock mWakeLock;
-    private static final String tvrage = "http://services.tvrage.com/feeds/episode_list.php?sid=";
-
     @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
-        if(dialog != null)
+        if (dialog != null)
             dialog.setMessage(values[0]);
     }
 
@@ -55,7 +54,8 @@ public class GetEpisodeInfo extends Get<String, String, List<EpisodeInfo> > {
 
 
         ArrayList<EpisodeInfo> list = new ArrayList<EpisodeInfo>();
-        for (String id : params){
+        Log.d("ShowInfo Tracker","starting get episode");
+        for (String id : params) {
             try {
                 String yqlURL = tvrage + URLEncoder.encode(id.trim(), "UTF-8");
                 Log.d("Show Tracker", "Starting ep get");
@@ -68,40 +68,41 @@ public class GetEpisodeInfo extends Get<String, String, List<EpisodeInfo> > {
                     if (isCancelled())
                         return list;
                     if (eventType == XmlPullParser.TEXT) {
-                        if (tag != null && !parser.getText().equals("\n"))
+                        String text = parser.getText().replace("\n","").trim();
+                        if (tag != null && !text.equals(""))
                             switch (tag) {
                                 case NAME:
-                                    publishProgress(parser.getText());
+                                    publishProgress(text);
                                     break;
                                 case EP_NUM:
-                                    entery.setEpNum(Integer.parseInt(parser.getText()));
+                                    entery.setEpNum(Integer.parseInt(text));
                                     break;
                                 case SEASON_NUM:
-                                    entery.setSeasonNum(Integer.parseInt(parser.getText()));
+                                    entery.setSeasonNum(Integer.parseInt(text));
                                     break;
                                 case PROD_NUM:
-                                    entery.setProdNum(parser.getText());
+                                    entery.setProdNum(text);
                                     break;
                                 case AIR_DATE:
                                     Calendar date = new GregorianCalendar();
-                                    date.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(parser.getText()));
+                                    date.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(text));
                                     entery.setAirDate(date);
                                     break;
                                 case LINK:
-                                    entery.setLink(parser.getText());
+                                    entery.setLink(text);
                                     break;
                                 case TITLE:
-                                    entery.setTitle(parser.getText());
+                                    entery.setTitle(text);
                                     break;
                                 default:
                                     break;
                             }
                     } else if (eventType == XmlPullParser.START_TAG) {
                         tag = EpisodeTag.getTag(parser.getName());
-                        if(tag!=null)
+                        if (tag != null)
                             switch (tag) {
                                 case SEASON:
-                                    season = Integer.parseInt(parser.getAttributeValue(null,EpisodeTag.NO.toString()));
+                                    season = Integer.parseInt(parser.getAttributeValue(null, EpisodeTag.NO.toString()));
                                     break;
                                 case EPISODE:
                                     entery = new EpisodeInfo();
@@ -113,7 +114,7 @@ public class GetEpisodeInfo extends Get<String, String, List<EpisodeInfo> > {
                             }
                     } else if (eventType == XmlPullParser.END_TAG) {
                         tag = EpisodeTag.getTag(parser.getName());
-                        if(tag!=null)
+                        if (tag != null)
                             switch (tag) {
                                 case EPISODE:
                                     list.add(entery);
@@ -137,14 +138,16 @@ public class GetEpisodeInfo extends Get<String, String, List<EpisodeInfo> > {
                 e.printStackTrace();
             }
         }
+        Log.d("ShowInfo Tracker","ending get episode");
         return list;
     }
 
     @Override
     protected void onPostExecute(List<EpisodeInfo> episodeList) {
+        Log.d("ShowInfo Tracker","post get episode");
         mWakeLock.release();
         DBTools db = new DBTools(activity);
-        db.updateEpisode(episodeList,false);
+        db.updateEpisode(episodeList, false);
     }
 }
 

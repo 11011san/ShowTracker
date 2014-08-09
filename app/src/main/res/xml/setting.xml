@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Update">
+        <CheckBoxPreference
+            android:key="notificationUpdate"
+            android:title="Update Notification"
+            android:summary="Show notification wean updating."
+            android:defaultValue="true"/>
+
+        <se.mitucha.showtracker.view.TimePreference
+            android:key="notificationInterval"
+            android:title="Update Interval"
+            android:summary="Set how often to update episodes."
+            android:defaultValue="12:00"/>
+        <MultiSelectListPreference
+            android:dialogTitle="Pick Allowed Connection Methods"
+            android:key="connection_method"
+            android:title="Connection Methods"
+            android:entries="@array/connection_method"
+            android:entryValues="@array/connection_method_values"
+            android:defaultValue="@array/connection_method_values_default"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -24,18 +24,16 @@ import se.mitucha.showtracker.info.ShowInfo;
 /**
  * Created by mr11011 on 2014-08-06.
  */
-public class DoSearch extends Get<String, String, List<ShowInfo>>  {
+public class DoSearch extends Get<String, String, List<ShowInfo>> {
 //AsyncTask<String, String, List<ShowInfo>> {
 
+    private static final String tvrage = "http://services.tvrage.com/feeds/full_search.php?show=";
+    private SearchActivity activity;
+    private PowerManager.WakeLock mWakeLock;
     public DoSearch(SearchActivity activity) {
         this.activity = activity;
 
     }
-
-    private SearchActivity activity;
-    private PowerManager.WakeLock mWakeLock;
-    private static final String tvrage = "http://services.tvrage.com/feeds/full_search.php?show=";
-
 
     protected void onPreExecute() {
         PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
@@ -60,16 +58,17 @@ public class DoSearch extends Get<String, String, List<ShowInfo>>  {
                 if (isCancelled())
                     return list;
                 if (eventType == XmlPullParser.TEXT) {
-                    if (tag != null && !parser.getText().equals("\n"))
+                    String text = parser.getText().replace("\n","").trim();
+                    if (tag != null && !text.equals(""))
                         switch (tag) {
                             case SHOW_ID:
-                                entery.setId(Integer.parseInt(parser.getText()));
+                                entery.setId(Integer.parseInt(text));
                                 break;
                             case NAME:
-                                entery.setTitle(parser.getText());
+                                entery.setTitle(text);
                                 break;
                             case STARTED:
-                                String started = parser.getText();
+                                String started = text;
                                 try {
                                     if (started.length() > 8) {
                                         Calendar date = new GregorianCalendar();
@@ -89,25 +88,25 @@ public class DoSearch extends Get<String, String, List<ShowInfo>>  {
                                 }
                                 break;
                             case STATUS:
-                                entery.setStatus(parser.getText());
+                                entery.setStatus(text);
                                 break;
                             case AKA:
-                                entery.addAka(akaCountry, parser.getText());
+                                entery.addAka(akaCountry, text);
                                 break;
                             case AIR_DAY:
-                                entery.setAirDay(parser.getText());
+                                entery.setAirDay(text);
                                 break;
                             case AIR_TIME:
-                                entery.setAirTime(parser.getText());
+                                entery.setAirTime(text);
                                 break;
                             case CLASSIFICATION:
-                                entery.setClassification(parser.getText());
+                                entery.setClassification(text);
                                 break;
                             case COUNTRY:
-                                entery.setCountry(parser.getText());
+                                entery.setCountry(text);
                                 break;
                             case ENDED:
-                                String ended = parser.getText();
+                                String ended = text;
                                 try {
                                     if (ended == null || ended.length() == 0) {
                                         entery.setEnded(null);
@@ -130,40 +129,42 @@ public class DoSearch extends Get<String, String, List<ShowInfo>>  {
                                 }
                                 break;
                             case NETWORK:
-                                entery.setNetwork(parser.getText());
+                                entery.setNetwork(text);
                                 break;
                             case GENRE:
-                                entery.addGenre(parser.getText());
+                                entery.addGenre(text);
                                 break;
                             case LINK:
-                                entery.setLink(parser.getText());
+                                entery.setLink(text);
                                 break;
                             case SEASONS:
-                                entery.setSeasons(Integer.parseInt(parser.getText()));
+                                entery.setSeasons(Integer.parseInt(text));
                                 break;
                             case RUNTIME:
-                                entery.setRuntime(Integer.parseInt(parser.getText()));
+                                entery.setRuntime(Integer.parseInt(text));
 
                             default:
                                 break;
                         }
                 } else if (eventType == XmlPullParser.START_TAG) {
                     tag = SearchTag.getTag(parser.getName());
+                    if(tag!=null)
                     switch (tag) {
                         case SHOW:
                             entery = new ShowInfo();
                             break;
                         case NETWORK:
-                            entery.setNetworkCountry(parser.getAttributeValue(null,SearchTag.COUNTRY.toString()));
+                            entery.setNetworkCountry(parser.getAttributeValue(null, SearchTag.COUNTRY.toString()));
                             break;
                         case AKA:
-                            akaCountry = parser.getText();
+                            akaCountry = parser.getAttributeValue(null, SearchTag.COUNTRY.toString());
                             break;
                         default:
                             break;
                     }
-                } else if (eventType == XmlPullParser.END_TAG){
+                } else if (eventType == XmlPullParser.END_TAG) {
                     tag = SearchTag.getTag(parser.getName());
+                    if(tag!=null)
                     switch (tag) {
                         case SHOW:
                             list.add(entery);

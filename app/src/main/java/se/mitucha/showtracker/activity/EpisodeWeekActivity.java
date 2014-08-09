@@ -16,16 +16,23 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
-import se.mitucha.showtracker.util.DBTools;
+import se.mitucha.showtracker.R;
 import se.mitucha.showtracker.adapter.EpisodeAdapter;
 import se.mitucha.showtracker.info.EpisodeInfo;
-import se.mitucha.showtracker.R;
+import se.mitucha.showtracker.util.DBTools;
 
 /**
  * Created by mr11011 on 2014-08-04.
  */
 public class EpisodeWeekActivity extends Activity {
 
+    private static final int MONDAY = Calendar.MONDAY;
+    private static final int TUESDAY = Calendar.TUESDAY;
+    private static final int WEDNESDAY = Calendar.WEDNESDAY;
+    private static final int THURSDAY = Calendar.THURSDAY;
+    private static final int FRIDAY = Calendar.FRIDAY;
+    private static final int SATURDAY = Calendar.SATURDAY;
+    private static final int SUNDAY = Calendar.SUNDAY;
     DBTools db;
     ListView mon;
     ListView tus;
@@ -42,7 +49,26 @@ public class EpisodeWeekActivity extends Activity {
     TextView satText;
     TextView sunText;
     TextView weekText;
-
+    private int curentWeek;
+    private int posishenWeek;
+    private int day;
+    private int month;
+    private int year;
+    private AdapterView.OnItemLongClickListener longClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            ImageView seen = (ImageView) view.findViewById(R.id.seen);
+            String[] epId = ((String) view.getTag()).trim().split("-");
+            EpisodeInfo episodeInfo = db.getEpisode(Integer.parseInt(epId[0]), Integer.parseInt(epId[1]));
+            episodeInfo.setSeen(!episodeInfo.isSeen());
+            if (episodeInfo.isSeen())
+                seen.setVisibility(View.VISIBLE);
+            else
+                seen.setVisibility(View.INVISIBLE);
+            db.updateEpisode(episodeInfo, true);
+            return true;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +89,6 @@ public class EpisodeWeekActivity extends Activity {
         satText = (TextView) findViewById(R.id.daySaturdayText);
         sunText = (TextView) findViewById(R.id.daySundayText);
         weekText = (TextView) findViewById(R.id.weekText);
-//        ListView listVew = (ListView) findViewById(R.id.dayList);
         db = new DBTools(this);
 
         Calendar cal = GregorianCalendar.getInstance();
@@ -76,86 +101,68 @@ public class EpisodeWeekActivity extends Activity {
         updateLists(curentWeek);
     }
 
-
-
-    private void updateLists(int week){
+    private void updateLists(int week) {
         List<EpisodeInfo> list;
         posishenWeek = week;
-        if(week == curentWeek)
+        if (week == curentWeek)
             weekText.setText("This Week " + week);
-        else if (week == curentWeek+1)
+        else if (week == curentWeek + 1)
             weekText.setText("Next Week " + week);
-        else if (week == curentWeek-1)
+        else if (week == curentWeek - 1)
             weekText.setText("Last Week " + week);
         else
             weekText.setText("Week " + week);
-        Calendar calendar = getDate(week,MONDAY);
-        list = db.getEpisodeInRange(calendar,calendar);
-        setList(mon,list);
-        monText.setText("Monday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
-        calendar = getDate(week,TUESDAY);
-        list = db.getEpisodeInRange(calendar,calendar);
-        setList(tus,list);
-        tusText.setText("Tuesday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
-        calendar = getDate(week,WEDNESDAY);
-        list = db.getEpisodeInRange(calendar,calendar);
-        setList(wed,list);
-        wedText.setText("Wednesday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
-        calendar = getDate(week,THURSDAY);
-        list = db.getEpisodeInRange(calendar,calendar);
+        Calendar calendar = getDate(week, MONDAY);
+        list = db.getEpisodeInRange(calendar, calendar);
+        setList(mon, list);
+        monText.setText("Monday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
+        calendar = getDate(week, TUESDAY);
+        list = db.getEpisodeInRange(calendar, calendar);
+        setList(tus, list);
+        tusText.setText("Tuesday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
+        calendar = getDate(week, WEDNESDAY);
+        list = db.getEpisodeInRange(calendar, calendar);
+        setList(wed, list);
+        wedText.setText("Wednesday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
+        calendar = getDate(week, THURSDAY);
+        list = db.getEpisodeInRange(calendar, calendar);
         setList(thu, list);
-        thuText.setText("Thursday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
-        calendar = getDate(week,FRIDAY);
-        list = db.getEpisodeInRange(calendar,calendar);
-        setList(fri,list);
-        friText.setText("Friday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH) );
-        calendar = getDate(week,SATURDAY);
-        list = db.getEpisodeInRange(calendar,calendar);
-        setList(sat,list);
+        thuText.setText("Thursday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
+        calendar = getDate(week, FRIDAY);
+        list = db.getEpisodeInRange(calendar, calendar);
+        setList(fri, list);
+        friText.setText("Friday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
+        calendar = getDate(week, SATURDAY);
+        list = db.getEpisodeInRange(calendar, calendar);
+        setList(sat, list);
         satText.setText("Saturday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
-        calendar = getDate(week,SUNDAY);
-        list = db.getEpisodeInRange(calendar,calendar);
-        setList(sun,list);
+        calendar = getDate(week, SUNDAY);
+        list = db.getEpisodeInRange(calendar, calendar);
+        setList(sun, list);
         sunText.setText("Sunday - " + calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US) + " " + calendar.get(Calendar.DAY_OF_MONTH));
 
     }
 
-
-
-    private static final int MONDAY = Calendar.MONDAY;
-    private static final int TUESDAY = Calendar.TUESDAY;
-    private static final int WEDNESDAY = Calendar.WEDNESDAY;
-    private static final int THURSDAY = Calendar.THURSDAY;
-    private static final int FRIDAY = Calendar.FRIDAY;
-    private static final int SATURDAY = Calendar.SATURDAY;
-    private static final int SUNDAY = Calendar.SUNDAY;
-    private int curentWeek;
-    private int posishenWeek;
-    private int day;
-    private int month;
-    private int year;
-
-
-
-    private Calendar getDate(int week, int day){
-        Calendar calendar = new GregorianCalendar(year,month,day);
-        calendar.set(Calendar.WEEK_OF_YEAR,week);
-        calendar.set(Calendar.DAY_OF_WEEK,day);
+    private Calendar getDate(int week, int day) {
+        Calendar calendar = new GregorianCalendar(year, month, day);
+        calendar.set(Calendar.WEEK_OF_YEAR, week);
+        calendar.set(Calendar.DAY_OF_WEEK, day);
         return calendar;
     }
 
-
-    private void setList(ListView day, List<EpisodeInfo> list){
+    private void setList(ListView day, List<EpisodeInfo> list) {
         EpisodeInfo[] eps = new EpisodeInfo[list.size()];
         eps = list.toArray(eps);
-        day.setAdapter( new EpisodeAdapter(this,eps));
+        day.setAdapter(new EpisodeAdapter(this, eps));
         day.setOnItemLongClickListener(longClickListener);
         setListViewHeightBasedOnChildren(day);
     }
 
-    /**** Method for Setting the Height of the ListView dynamically.
-     **** Hack to fix the issue of not showing all the items of the ListView
-     **** when placed inside a ScrollView  ****/
+    /**
+     * * Method for Setting the Height of the ListView dynamically.
+     * *** Hack to fix the issue of not showing all the items of the ListView
+     * *** when placed inside a ScrollView  ***
+     */
     public void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null)
@@ -178,37 +185,20 @@ public class EpisodeWeekActivity extends Activity {
         listView.requestLayout();
     }
 
-
-    private AdapterView.OnItemLongClickListener longClickListener = new AdapterView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            ImageView seen = (ImageView) view.findViewById(R.id.seen);
-            String[] epId = ((String) view.getTag()).trim().split("-");
-            EpisodeInfo episodeInfo = db.getEpisode(Integer.parseInt(epId[0]),Integer.parseInt(epId[1]));
-            episodeInfo.setSeen(!episodeInfo.isSeen());
-            if(episodeInfo.isSeen())
-                seen.setVisibility(View.VISIBLE);
-            else
-                seen.setVisibility(View.INVISIBLE);
-            db.updateEpisode(episodeInfo,true);
-            return true;
-        }
-    };
-
     public void backWeek(View view) {
         posishenWeek--;
-        if(posishenWeek<1){
+        if (posishenWeek < 1) {
             year--;
-            posishenWeek=52;
+            posishenWeek = 52;
         }
         updateLists(posishenWeek);
     }
 
     public void forwardWeek(View view) {
         posishenWeek++;
-        if(posishenWeek>52) {
+        if (posishenWeek > 52) {
             year++;
-            posishenWeek=1;
+            posishenWeek = 1;
         }
         updateLists(posishenWeek);
     }
