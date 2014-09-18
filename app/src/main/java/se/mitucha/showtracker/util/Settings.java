@@ -35,7 +35,7 @@ public class Settings {
         return sharedPreferences.getBoolean(NOTIFICATION_UPDATE,true);
     }
 
-    public int getUpdateInterval(){
+    public long getUpdateInterval(){
         String time = sharedPreferences.getString(NOTIFICATION_INTERVAL, "12:00");
         return TimePreference.getHour(time) *(1000*60*60) + TimePreference.getMinute(time)*(1000*60);
     }

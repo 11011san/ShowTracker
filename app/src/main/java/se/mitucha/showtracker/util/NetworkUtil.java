@@ -3,6 +3,7 @@ package se.mitucha.showtracker.util;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 /**
  * Created by mr11011 on 2014-08-09.
@@ -55,9 +56,35 @@ public class NetworkUtil {
     public boolean alowedToConect(){
         int method = Settings.getSettings().getConnectionMethod();
         boolean conection = false;
+        if(false) { //debut
+            ConnectivityManager cm =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            String text = "Connection : ";
+            int type = cm.getActiveNetworkInfo().getType();
+            if(type == ConnectivityManager.TYPE_BLUETOOTH)
+                Log.d("ShowTracker",text + "BlueTooth");
+            if(type == ConnectivityManager.TYPE_WIFI)
+                Log.d("ShowTracker",text + "WiFi");
+            if(type == ConnectivityManager.TYPE_ETHERNET)
+                Log.d("ShowTracker",text + "Ethernet");
+            if(type == ConnectivityManager.TYPE_DUMMY)
+                Log.d("ShowTracker",text + "Dummy");
+            if(type == ConnectivityManager.TYPE_MOBILE)
+                Log.d("ShowTracker",text + "Mobile");
+            if(type == ConnectivityManager.TYPE_MOBILE_DUN)
+                Log.d("ShowTracker",text + "Mobile DUN");
+            if(type == ConnectivityManager.TYPE_MOBILE_HIPRI)
+                Log.d("ShowTracker",text + "Mobile HIPRI");
+            if(type == ConnectivityManager.TYPE_MOBILE_MMS)
+                Log.d("ShowTracker",text + "Mobile MMS");
+            if(type == ConnectivityManager.TYPE_MOBILE_SUPL)
+                Log.d("ShowTracker",text + "Mobile Supl");
+            if(type == ConnectivityManager.TYPE_WIMAX)
+                Log.d("ShowTracker",text + "WIMAX");
+        }
         if(onMobile())
             if(isRoaming())
-                conection = (method & (ROMING|MOBILE))!=0;
+                conection = (method & (ROMING))!=0;
             else
                 conection = (method & MOBILE)!=0;
         else if(onWiFi())

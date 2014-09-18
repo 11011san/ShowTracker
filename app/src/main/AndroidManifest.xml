@@ -28,10 +28,11 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".activity.SeasonActivity"
             android:screenOrientation="portrait"/>
-        <service android:name=".service.UpdateService"/>
+        <service android:name=".service.UpdateService"
+            android:enabled="true"/>
         <activity android:name=".activity.SettingActivity"
             android:label="@string/action_settings"/>
-        <receiver android:name=".broadcast.BroadcastSync"></receiver>
+        <receiver android:name=".broadcast.BroadcastSync"/>
     </application>
 
 </manifest>

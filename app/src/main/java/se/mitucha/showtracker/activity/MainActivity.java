@@ -1,6 +1,8 @@
 package se.mitucha.showtracker.activity;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,6 +18,7 @@ import java.util.Comparator;
 
 import se.mitucha.showtracker.R;
 import se.mitucha.showtracker.adapter.SerisAdapter;
+import se.mitucha.showtracker.broadcast.BroadcastSync;
 import se.mitucha.showtracker.info.ShowInfo;
 import se.mitucha.showtracker.service.UpdateService;
 import se.mitucha.showtracker.util.DBTools;
@@ -27,7 +30,6 @@ public class MainActivity extends Activity {
     private ListView serisListView;
     private ArrayList<ShowInfo> serisList;
     private DBTools db = new DBTools(this);
-    private UpdateService updateService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,21 +38,14 @@ public class MainActivity extends Activity {
         Settings.makeSettings(this);
         serisListView = (ListView) findViewById(R.id.serisList);
 
-        updateService = UpdateService.getInstant();
-        if(updateService==null) {
-            startService(new Intent(this, UpdateService.class));
-        }
-        UpdateService.setContext(this);
+        Intent updateIntent = new Intent(this, BroadcastSync.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, updateIntent, 0);
 
-        /*Intent intent = new Intent(this, BroadcastSync.class);
-        intent.setAction(Intent.ACTION_SYNC);
-        this.registerReceiver(new BroadcastSync(), IntentFilter.create());*/
-
-
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+(1000 * 1),Settings.getSettings().getUpdateInterval(), pendingIntent);
         updateList();
 
     }
-
 
     @Override
     protected void onResume() {
@@ -129,9 +124,9 @@ public class MainActivity extends Activity {
             Intent theIntent = new Intent(getApplication(), EpisodeWeekActivity.class);
             startActivity(theIntent);
         } else if (id==R.id.action_update){
-            if(updateService==null)
-                updateService = UpdateService.getInstant();
-            updateService.update();
+
+            Intent intent = new Intent(getApplication(), UpdateService.class);
+            startService(intent);
         }
         return super.onOptionsItemSelected(item);
     }

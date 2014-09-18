@@ -9,7 +9,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import java.util.List;
-import java.util.Timer;
 
 import se.mitucha.showtracker.R;
 import se.mitucha.showtracker.get.GetShowInfo;
@@ -23,8 +22,6 @@ import se.mitucha.showtracker.util.Settings;
 public class UpdateService extends Service {
 
     private DBTools dbTools;
-    private static TimerTask timerTask;
-    private static Timer timer;
     private static UpdateService running;
     private static boolean updating = false;
     private static Context context;
@@ -32,26 +29,22 @@ public class UpdateService extends Service {
     public static void setContext(Context context){
         UpdateService.context = context;
     }
+
     @Override
-    public void onCreate() {
+    public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("Show Tracker" , "starting update service");
-        super.onCreate();
+        super.onStartCommand(intent, flags, startId);
         dbTools = new DBTools(this);
         if(running!=null)
             stopSelf();
         else{
             running = this;
             update();
-//            stopSelf();
+            running = null;
+            stopSelf();
 
-            if(timer==null) {
-                int interval = Settings.getSettings().getUpdateInterval();
-                timer = new Timer();
-                timer.schedule(new TimerTask(getApplicationContext()), 1000, interval);
-                Log.d("Show Tracker" , "starting update service timer");
-            }
         }
-
+    return START_NOT_STICKY;
     }
 
 
@@ -85,7 +78,7 @@ public class UpdateService extends Service {
             boolean notif = Settings.getSettings().getNotificationUpdate();
             NotificationManager mNotificationManager = null;
             int notifyID = 1;
-            if(new NetworkUtil(getApplicationContext()).alowedToConect()){
+            if(!new NetworkUtil(getApplicationContext()).alowedToConect()){
                 mNotificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 // Sets an ID for the notification, so it can be updated
@@ -128,7 +121,7 @@ public class UpdateService extends Service {
 
         }
     }
-
+/*
     private class TimerTask extends java.util.TimerTask {
         private Context context;
         public TimerTask(Context context){
@@ -143,5 +136,5 @@ public class UpdateService extends Service {
 
         }
     }
-
+*/
 }
